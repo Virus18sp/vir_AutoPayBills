@@ -18,7 +18,7 @@ This is a Rebuild for QBCore from original esx_autopaybills (https://github.com/
 - Very well commented for easy understand.
 
 # Dependencies
-- qb-bossmenu (uploading it soon)
+- [qb-bossmenu] (https://github.com/Virus18sp/qb-bossmenu)
 - [qb-management](https://github.com/qbcore-framework/qb-management)
 - oxmysql 2.0 or higher [(latest recommended)](https://github.com/overextended/oxmysql/releases)
 - [qb-core](https://github.com/qbcore-framework/qb-core)
