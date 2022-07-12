@@ -21,3 +21,14 @@ This is a Rebuild for QBCore from original esx_autopaybills (https://github.com/
 - qb-bossmenu (uploading it soon)
 - [qb-management](https://github.com/qbcore-framework/qb-management)
 - oxmysql 2.0 or higher [(latest recommended)](https://github.com/overextended/oxmysql/releases)
+- [qb-core](https://github.com/qbcore-framework/qb-core)
+
+# Installation
+- Download resource
+- Extract the file, place it in your resources folder and add it to your server.cfg
+- Take a look to sv_cfg.lua for Config options
+- Enjoy it!
+
+# Credits
+- [RedAlex](https://github.com/RedAlex) for original esx resource
+- Me for Rebuild it and improve it.
