@@ -113,64 +113,66 @@ local function PayBills(...)
 					----------------------
 					local jsonres = MySQL.scalar.await('SELECT money FROM players WHERE citizenid = ?', {result[i].citizenid}) -- Lets fetch user money accounts
 					----------------------
-					local accounts = json.decode(jsonres) -- Decode Json Accounts
-					----------------------
-					if accounts.bank > 0 then -- Lets check if not is broke lol
+					if jsonres then -- Lets validate the result just in the case that player do not exist anymore in players table and invoice still on phone_invoices table
+						local accounts = json.decode(jsonres) -- Decode Json Accounts
 						----------------------
-						local amount = mathRound(accounts.bank/100*Config.MaxPercentPay) -- Lets set the percent amount to check below
-						----------------------
-						if amount >= result[i].amount then -- Check if the percent set in config is enough to cover invoice amount
-							----------------------
-							accounts.bank = accounts.bank - result[i].amount -- Lets set the new balance
-							----------------------
-							MySQL.update('UPDATE players SET money = :accounts WHERE citizenid = :cid',{accounts = json.encode(accounts), cid = result[i].citizenid}) -- Save new money balance
-							----------------------
-							if result[i].society then -- Check if society is not empty
-								----------------------
-								if QBCore.Shared.Jobs[result[i].society] then -- Check if society is a valid job
-									----------------------
-									if Config.UseBossMenu then -- Check if is using BossMenu
-										TriggerEvent('qb-bossmenu:server:addAccountMoney', result[i].society, result[i].amount) -- Lets deposit the amount payed to the correct job
-									elseif Config.UseQBManagement then -- Check if is using QB-Management
-										exports['qb-management']:AddMoney(result[i].society, result[i].amount) -- Lets deposit the amount payed to the correct job
-									end
-									----------------------
-								end
-								----------------------
-							end
-							----------------------
-							MySQL.query('DELETE FROM phone_invoices WHERE id = ?', {result[i].id}) -- Delete payed invoice from table
-							----------------------
-							if Config.Debug then print(ply.PlayerData.name.." pay "..result[i].amount.." from bill to "..result[i].society) end -- Print in console if debug is true
-							----------------------
-						else -- Partial Payment (under test)
+						if accounts.bank > 0 then -- Lets check if not is broke lol
 							----------------------
 							local amount = mathRound(accounts.bank/100*Config.MaxPercentPay) -- Lets set the percent amount to check below
 							----------------------
-							if result[i].amount >= amount then -- Check if invoice amount is more than player balance
+							if amount >= result[i].amount then -- Check if the percent set in config is enough to cover invoice amount
 								----------------------
-								accounts.bank = accounts.bank - amount -- Lets set the new balance
+								accounts.bank = accounts.bank - result[i].amount -- Lets set the new balance
 								----------------------
 								MySQL.update('UPDATE players SET money = :accounts WHERE citizenid = :cid',{accounts = json.encode(accounts), cid = result[i].citizenid}) -- Save new money balance
-								----------------------
-								MySQL.update('UPDATE phone_invoices SET amount = amount - :partialpayment WHERE id = :id',{partialpayment = amount, id = result[i].id}) -- Update invoice amount 
 								----------------------
 								if result[i].society then -- Check if society is not empty
 									----------------------
 									if QBCore.Shared.Jobs[result[i].society] then -- Check if society is a valid job
 										----------------------
 										if Config.UseBossMenu then -- Check if is using BossMenu
-											TriggerEvent('qb-bossmenu:server:addAccountMoney', result[i].society, amount) -- Lets deposit the amount payed to the correct job
+											TriggerEvent('qb-bossmenu:server:addAccountMoney', result[i].society, result[i].amount) -- Lets deposit the amount payed to the correct job
 										elseif Config.UseQBManagement then -- Check if is using QB-Management
-											exports['qb-management']:AddMoney(result[i].society, amount) -- Lets deposit the amount payed to the correct job
+											exports['qb-management']:AddMoney(result[i].society, result[i].amount) -- Lets deposit the amount payed to the correct job
 										end
 										----------------------
 									end
 									----------------------
 								end
 								----------------------
-								if Config.Debug then print(result[i].citizenid.." pay partially "..amount.." from bill to "..result[i].society) end -- Print in console if debug is true
+								MySQL.query('DELETE FROM phone_invoices WHERE id = ?', {result[i].id}) -- Delete payed invoice from table
 								----------------------
+								if Config.Debug then print(result[i].citizenid.." pay "..result[i].amount.." from bill to "..result[i].society) end -- Print in console if debug is true
+								----------------------
+							else -- Partial Payment (under test)
+								----------------------
+								local amount = mathRound(accounts.bank/100*Config.MaxPercentPay) -- Lets set the percent amount to check below
+								----------------------
+								if result[i].amount >= amount then -- Check if invoice amount is more than player balance
+									----------------------
+									accounts.bank = accounts.bank - amount -- Lets set the new balance
+									----------------------
+									MySQL.update('UPDATE players SET money = :accounts WHERE citizenid = :cid',{accounts = json.encode(accounts), cid = result[i].citizenid}) -- Save new money balance
+									----------------------
+									MySQL.update('UPDATE phone_invoices SET amount = amount - :partialpayment WHERE id = :id',{partialpayment = amount, id = result[i].id}) -- Update invoice amount 
+									----------------------
+									if result[i].society then -- Check if society is not empty
+										----------------------
+										if QBCore.Shared.Jobs[result[i].society] then -- Check if society is a valid job
+											----------------------
+											if Config.UseBossMenu then -- Check if is using BossMenu
+												TriggerEvent('qb-bossmenu:server:addAccountMoney', result[i].society, amount) -- Lets deposit the amount payed to the correct job
+											elseif Config.UseQBManagement then -- Check if is using QB-Management
+												exports['qb-management']:AddMoney(result[i].society, amount) -- Lets deposit the amount payed to the correct job
+											end
+											----------------------
+										end
+										----------------------
+									end
+									----------------------
+									if Config.Debug then print(result[i].citizenid.." pay partially "..amount.." from bill to "..result[i].society) end -- Print in console if debug is true
+									----------------------
+								end
 							end
 						end
 					end
