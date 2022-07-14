@@ -78,7 +78,7 @@ local function PayBills(...)
 							----------------------
 							local amount = mathRound(accountMoney/100*Config.MaxPercentPay) -- Lets set the percent amount to check below
 							----------------------
-							if result[i].amount >= amount then -- Check if invoice amount is more or equal than player balance
+							if result[i].amount >= amount and amount > 0 then -- Check if invoice amount is more or equal than player balance and player balance is not 0
 								----------------------
 								ply.Functions.RemoveMoney('bank', amount, "Past due invoices | Partial Payment") -- Here we will remove the percent amount cause its not enough to cover the full invoice amount 
 								----------------------
@@ -148,7 +148,7 @@ local function PayBills(...)
 								----------------------
 								local amount = mathRound(accounts.bank/100*Config.MaxPercentPay) -- Lets set the percent amount to check below
 								----------------------
-								if result[i].amount >= amount then -- Check if invoice amount is more than player balance
+								if result[i].amount >= amount and amount > 0 then -- Check if invoice amount is more than player balance and player balance is not 0
 									----------------------
 									accounts.bank = accounts.bank - amount -- Lets set the new balance
 									----------------------
